@@ -7,11 +7,10 @@
     <string name="login_count_txt">Number of attempts remaining:</string>
     <string name="register_link">No account? Register</string>
     <string name="register_email">Email</string>
-    <string name="register_btn">Enter</string>
     <string name="first_name_register">First Name</string>
     <string name="last_name_register">Last Name</string>
     <string name="email_register">Email</string>
     <string name="password_register">Password</string>
-    <string name="register_enter">Enter</string>
     <string name="log_in_link">Already registered? log in</string>
+    <string name="register_btn">Enter</string>
 </resources>

@@ -27,9 +27,6 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView loginLink;
     private FirebaseAuth fbAuth;
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,27 +37,26 @@ public class RegisterActivity extends AppCompatActivity {
         fbAuth = FirebaseAuth.getInstance();
 
         registerBtn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 if(validate()){
-                    //Upload data to database
+                    //Upload data to base
                     String userEmail = registerEmail.getText().toString().trim();
-                    String userPassword = registerPassword.getText().toString().trim();
-
+                    final String userPassword = registerPassword.getText().toString().trim();
                     //Create a user with the Firebase authentication object
                     fbAuth.createUserWithEmailAndPassword(userEmail,userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-                            //Display a message to show the user registration is successful
                             if(task.isSuccessful()){
                                 Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
-                                //if registration successful go to the login activity
                                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                            }else {
-                                Toast.makeText(RegisterActivity.this,"Registration Fail",Toast.LENGTH_SHORT).show();
+                            }else{
+                                Toast.makeText(RegisterActivity.this,"Registration Failure",Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
+
                 }
             }
         });
@@ -106,7 +102,10 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(this,"Please enter a valid Email", Toast.LENGTH_SHORT).show();
         }
 
-        if(firstName.isEmpty() && lastName.isEmpty() && email.isEmpty() && password.isEmpty()){
+        if(password.length() < 7){
+            Toast.makeText(RegisterActivity.this,"Enter password with more than 7 characters", Toast.LENGTH_SHORT).show();
+        }
+        else if(firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()){
             Toast.makeText(this,"Please enter all the details", Toast.LENGTH_SHORT).show();
         }else{
             result = true;

@@ -6,6 +6,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,6 +71,10 @@ public class LoginActivity extends AppCompatActivity {
 
         String email = loginEmail.getText().toString();
         String password = loginPassword.getText().toString();
+
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            Toast.makeText(this,"Please enter a valid Email", Toast.LENGTH_SHORT).show();
+        }
 
         if(email.isEmpty() && password.isEmpty()){
             Toast.makeText(this,"Please enter all the details", Toast.LENGTH_SHORT).show();
