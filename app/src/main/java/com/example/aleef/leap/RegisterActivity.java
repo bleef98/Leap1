@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -43,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if(validate()){
                     //Upload data to base
                     String userEmail = registerEmail.getText().toString().trim();
-                    final String userPassword = registerPassword.getText().toString().trim();
+                    String userPassword = registerPassword.getText().toString().trim();
                     //Create a user with the Firebase authentication object
                     fbAuth.createUserWithEmailAndPassword(userEmail,userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
@@ -52,7 +53,9 @@ public class RegisterActivity extends AppCompatActivity {
                                 Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                             }else{
-                                Toast.makeText(RegisterActivity.this,"Registration Failure",Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(RegisterActivity.this,"Registration Failure",Toast.LENGTH_SHORT).show();
+                                FirebaseAuthException e = (FirebaseAuthException )task.getException();
+                                Toast.makeText(RegisterActivity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
                     });

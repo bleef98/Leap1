@@ -3,6 +3,7 @@ package com.example.aleef.leap;
 import android.content.Intent;
 import android.icu.text.IDNA;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,6 +14,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText loginEmail;
@@ -21,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private int count = 5;
     private TextView registerLink;
+    private FirebaseAuth fbAuth;
 
 
 
@@ -57,10 +65,26 @@ public class LoginActivity extends AppCompatActivity {
         registerLink = (TextView)findViewById(R.id.register_link);
 
         loginCount.setText("No of attempts remaining: 5");
+
+        fbAuth = FirebaseAuth.getInstance();
+
+        //object to check if a user is already logged in
+        FirebaseUser fbUser = fbAuth.getCurrentUser();
+
+        /**if(fbUser != null){
+            finish();
+            startActivity(new Intent(LoginActivity.this,CalendarActivity.class));
+        }**/
+
+
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                validatePw(loginEmail.getText().toString(), loginPassword.getText().toString());
+
+                String email = loginEmail.getText().toString().trim();
+                String password = loginPassword.getText().toString().trim();
+
+                validateUser(email,password);
             }
         });
     }
@@ -84,20 +108,24 @@ public class LoginActivity extends AppCompatActivity {
         return result;
     }
 
-    private void validatePw(String email, String password){
-        if((email == "Admin") && (password == "1234")){
-            //Log in stub. Will fix this to be dynamically linked to database
-           // Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
-           // startActivity(intent);
-        }else{
-            count--;
-
-            loginCount.setText("No of attempts remaining: "+ String.valueOf(count));
-            if(count == 0){
-                loginBtn.setEnabled(false);
+    private void validateUser(String email, String password){
+        fbAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(LoginActivity.this,"Login Successful",Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(LoginActivity.this, CalendarActivity.class));
+                }else{
+                    Toast.makeText(LoginActivity.this,"Login Failure",Toast.LENGTH_SHORT).show();
+                    count--;
+                    if(count == 0){
+                        loginCount.setText("No of attempts remaining: "+count);
+                        loginBtn.setEnabled(false);
+                    }
+                }
             }
+        });
 
-        }
     }
 
 
