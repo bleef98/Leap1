@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity">
+        //Calendar activity is the auncher for now
+        <activity android:name="CalendarActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,7 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".CalendarActivity" />
+        <activity android:name=".LoginActivity" />
         <activity android:name=".CreateEventActivity" />
         <activity android:name=".SettingsActivity"></activity>
     </application>
