@@ -45,7 +45,7 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.calendar_layout);
+        setContentView(R.layout.activity_calendar);
         mCalendarView = (CalendarView) findViewById(R.id.calendarView);
         btnAdd = (Button) findViewById(R.id.btnAdd);
         btnSettings = (Button) findViewById(R.id.btnSettings);
