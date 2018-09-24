@@ -11,6 +11,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -21,6 +25,9 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText registerPassword;
     private Button registerBtn;
     private TextView loginLink;
+    private FirebaseAuth fbAuth;
+
+
 
 
     @Override
@@ -29,12 +36,31 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         setupUIview();
 
+        //create a Firebase authentication object
+        fbAuth = FirebaseAuth.getInstance();
+
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(validate()){
                     //Upload data to database
+                    String userEmail = registerEmail.getText().toString().trim();
+                    String userPassword = registerPassword.getText().toString().trim();
 
+                    //Create a user with the Firebase authentication object
+                    fbAuth.createUserWithEmailAndPassword(userEmail,userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            //Display a message to show the user registration is successful
+                            if(task.isSuccessful()){
+                                Toast.makeText(RegisterActivity.this,"Registration Successful",Toast.LENGTH_SHORT).show();
+                                //if registration successful go to the login activity
+                                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                            }else {
+                                Toast.makeText(RegisterActivity.this,"Registration Fail",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             }
         });
