@@ -76,10 +76,10 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser fbUser = fbAuth.getCurrentUser();
 
         //check if there is a user already logged on
-        if(fbUser != null){
+        /**if(fbUser != null){
             finish();
             startActivity(new Intent(LoginActivity.this,CalendarActivity.class));
-        }
+        }**/
     }
 
     //Validate whether user has filled in the necessary fields

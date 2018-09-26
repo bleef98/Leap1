@@ -27,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 
 
-        Button btnUpdate = (Button) findViewById(R.id.button2);
+        Button btnUpdate = (Button) findViewById(R.id.btnRe);
         Button btnBack = (Button) findViewById(R.id.btnBack);
         Button logoutBtn = (Button)findViewById(R.id.logout_btn);
 

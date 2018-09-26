@@ -37,7 +37,8 @@ public class CalendarActivity extends AppCompatActivity {
 
     private CalendarView mCalendarView;
     private Button btnAdd;
-    private Button btnSettings;
+    private Button logoutBtn;
+    //private Button btnSettings;
     private String fileName = "/storage/self/primary/testSavedEvents.txt";
     Boolean fromEventCreate;
     Date date;
@@ -47,18 +48,25 @@ public class CalendarActivity extends AppCompatActivity {
     ArrayList<Event> eventArrayList =new ArrayList<Event>();
     private FirebaseAuth fbAuth;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
         mCalendarView = (CalendarView) findViewById(R.id.calendarView);
         btnAdd = (Button) findViewById(R.id.btnAdd);
-        btnSettings = (Button) findViewById(R.id.btnSettings);
-        Button logoutBtn = (Button)findViewById(R.id.logout_btn);
+        logoutBtn = (Button)findViewById(R.id.logout_btn);
+        //btnSettings = (Button) findViewById(R.id.btnSettings);
+        fbAuth = FirebaseAuth.getInstance();
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
+            }
+        });
 
         File file = new File(fileName);
-
-        fbAuth = FirebaseAuth.getInstance();
 
         //Toast.makeText(CalendarActivity.this, fileName,Toast.LENGTH_LONG).show();
         loadFile(file);
@@ -117,44 +125,8 @@ public class CalendarActivity extends AppCompatActivity {
                 addBtn();
             }
         });
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settingsBtn();
-            }
-        });
-
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logout();
-            }
-        });
     }
 
-    //Menu on create
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options_menu,menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.optionsMenu:{
-                logout();
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    //logout method
-    private void logout(){
-        fbAuth.signOut();
-        finish();
-        startActivity(new Intent(CalendarActivity.this, LoginActivity.class));
-    }
 
     public void checkEventsOnDay(){
 
@@ -178,10 +150,10 @@ public class CalendarActivity extends AppCompatActivity {
         addBtnIntent.putExtra("date", strDate);
         startActivity(addBtnIntent);
     }
-    public void settingsBtn(){
+    /**public void settingsBtn(){
         Intent settingsBtnIntent = new Intent(CalendarActivity.this, SettingsActivity.class);
         startActivity(settingsBtnIntent);
-    }
+    }**/
 
     public void saveFile(File file) throws IOException{
         isWritePermissionGranted();
@@ -252,5 +224,31 @@ public class CalendarActivity extends AppCompatActivity {
         else {
             return true;
         }
+    }
+
+    //Menu on create
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu,menu);
+        return true;
+    }
+
+
+    //handle click events on the menu
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.logoutMenu:{
+                logout();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    //logout method
+    private void logout(){
+        fbAuth.signOut();
+        finish();
+        startActivity(new Intent(CalendarActivity.this, LoginActivity.class));
     }
 }
