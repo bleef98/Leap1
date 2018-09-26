@@ -10,12 +10,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +45,7 @@ public class CalendarActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter;
     ArrayList<String> eventStringArrayList = new ArrayList<String>();
     ArrayList<Event> eventArrayList =new ArrayList<Event>();
+    private FirebaseAuth fbAuth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,8 +54,11 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView = (CalendarView) findViewById(R.id.calendarView);
         btnAdd = (Button) findViewById(R.id.btnAdd);
         btnSettings = (Button) findViewById(R.id.btnSettings);
+        Button logoutBtn = (Button)findViewById(R.id.logout_btn);
 
         File file = new File(fileName);
+
+        fbAuth = FirebaseAuth.getInstance();
 
         //Toast.makeText(CalendarActivity.this, fileName,Toast.LENGTH_LONG).show();
         loadFile(file);
@@ -115,6 +123,37 @@ public class CalendarActivity extends AppCompatActivity {
                 settingsBtn();
             }
         });
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
+            }
+        });
+    }
+
+    //Menu on create
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.optionsMenu:{
+                logout();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    //logout method
+    private void logout(){
+        fbAuth.signOut();
+        finish();
+        startActivity(new Intent(CalendarActivity.this, LoginActivity.class));
     }
 
     public void checkEventsOnDay(){
