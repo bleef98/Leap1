@@ -55,7 +55,7 @@ public class CalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
         mCalendarView = (CalendarView) findViewById(R.id.calendarView);
         btnAdd = (Button) findViewById(R.id.btnAdd);
-        logoutBtn = (Button)findViewById(R.id.logout_btn);
+        logoutBtn = (Button)findViewById(R.id.logoutBtn);
         //btnSettings = (Button) findViewById(R.id.btnSettings);
         fbAuth = FirebaseAuth.getInstance();
 
