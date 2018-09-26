@@ -34,7 +34,9 @@ public class CalendarActivity extends AppCompatActivity {
     private CalendarView mCalendarView;
     private Button btnAdd;
     private Button btnSettings;
-    private String fileName = "/storage/self/primary/testSavedEvents.txt";
+    private String fileNameNew = "/storage/self/primary/newTestSavedEvents.txt";
+    private String fileNameOld = "/storage/sdcard/newTestSavedEvents.txt";
+
     Boolean fromEventCreate;
     Date date;
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -50,7 +52,13 @@ public class CalendarActivity extends AppCompatActivity {
         btnAdd = (Button) findViewById(R.id.btnAdd);
         btnSettings = (Button) findViewById(R.id.btnSettings);
 
-        File file = new File(fileName);
+        File file;
+        if(Build.VERSION.SDK_INT >= 23){
+            file = new File(fileNameNew);
+        }else{
+            file = new File(fileNameOld);
+        }
+
 
         //Toast.makeText(CalendarActivity.this, fileName,Toast.LENGTH_LONG).show();
         loadFile(file);
@@ -185,10 +193,10 @@ public class CalendarActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                //Toast.makeText(CalendarActivity.this, "permission granted", Toast.LENGTH_LONG).show();
+                Toast.makeText(CalendarActivity.this, "write permission granted", Toast.LENGTH_LONG).show();
                 return true;
             } else {
-                //Toast.makeText(CalendarActivity.this, "asking permission", Toast.LENGTH_LONG).show();
+                Toast.makeText(CalendarActivity.this, "write asking permission", Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
@@ -202,11 +210,15 @@ public class CalendarActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(CalendarActivity.this, "read permission granted", Toast.LENGTH_LONG).show();
+
                 return true;
             } else {
 
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                Toast.makeText(CalendarActivity.this, "read asking perm", Toast.LENGTH_LONG).show();
+
                 return false;
             }
         }
