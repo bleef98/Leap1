@@ -13,4 +13,6 @@
     <string name="password_register">Password</string>
     <string name="log_in_link">Already registered? log in</string>
     <string name="register_btn">Enter</string>
+    <string name="update_btn">Update</string>
+    <string name="logoutBtn">Logout</string>
 </resources>
