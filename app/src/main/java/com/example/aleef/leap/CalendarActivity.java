@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -39,7 +38,8 @@ public class CalendarActivity extends AppCompatActivity {
     private Button btnAdd;
     private Button logoutBtn;
     //private Button btnSettings;
-    private String fileName = "/storage/self/primary/testSavedEvents.txt";
+    private String fileNameNew = "/storage/self/primary/testSavedEvents.txt";
+    private String fileNameOld = "/storage/sdcard/testSavedEvents.txt";
     Boolean fromEventCreate;
     Date date;
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -66,9 +66,15 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
-        File file = new File(fileName);
+        File file;
+        if (Build.VERSION.SDK_INT >= 23) {
+            file = new File(fileNameNew);
+        }
+        else{
+            file = new File(fileNameOld);
+        }
 
-        //Toast.makeText(CalendarActivity.this, fileName,Toast.LENGTH_LONG).show();
+        //Toast.makeText(CalendarActivity.this, fileNameNew,Toast.LENGTH_LONG).show();
         loadFile(file);
 
         try {
@@ -187,7 +193,7 @@ public class CalendarActivity extends AppCompatActivity {
             }
         }catch(IOException e){
             e.printStackTrace();
-            Toast.makeText(CalendarActivity.this, "Error Loading Events", Toast.LENGTH_LONG).show();
+            //Toast.makeText(CalendarActivity.this, "Error Loading Events", Toast.LENGTH_LONG).show();
         }
 
     }
@@ -229,7 +235,7 @@ public class CalendarActivity extends AppCompatActivity {
     //Menu on create
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options_menu,menu);
+        getMenuInflater().inflate( R.menu.options_menu,menu);
         return true;
     }
 
