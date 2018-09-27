@@ -10,12 +10,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,16 +37,17 @@ public class CalendarActivity extends AppCompatActivity {
 
     private CalendarView mCalendarView;
     private Button btnAdd;
-    private Button btnSettings;
-    private String fileNameNew = "/storage/self/primary/newTestSavedEvents.txt";
-    private String fileNameOld = "/storage/sdcard/newTestSavedEvents.txt";
-
+    private Button logoutBtn;
+    //private Button btnSettings;
+    private String fileName = "/storage/self/primary/testSavedEvents.txt";
     Boolean fromEventCreate;
     Date date;
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     ArrayAdapter<String> adapter;
     ArrayList<String> eventStringArrayList = new ArrayList<String>();
     ArrayList<Event> eventArrayList =new ArrayList<Event>();
+    private FirebaseAuth fbAuth;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,15 +55,18 @@ public class CalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
         mCalendarView = (CalendarView) findViewById(R.id.calendarView);
         btnAdd = (Button) findViewById(R.id.btnAdd);
-        btnSettings = (Button) findViewById(R.id.btnSettings);
+        logoutBtn = (Button)findViewById(R.id.logoutBtn);
+        //btnSettings = (Button) findViewById(R.id.btnSettings);
+        fbAuth = FirebaseAuth.getInstance();
 
-        File file;
-        if(Build.VERSION.SDK_INT >= 23){
-            file = new File(fileNameNew);
-        }else{
-            file = new File(fileNameOld);
-        }
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
+            }
+        });
 
+        File file = new File(fileName);
 
         //Toast.makeText(CalendarActivity.this, fileName,Toast.LENGTH_LONG).show();
         loadFile(file);
@@ -117,13 +125,8 @@ public class CalendarActivity extends AppCompatActivity {
                 addBtn();
             }
         });
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                settingsBtn();
-            }
-        });
     }
+
 
     public void checkEventsOnDay(){
 
@@ -147,10 +150,10 @@ public class CalendarActivity extends AppCompatActivity {
         addBtnIntent.putExtra("date", strDate);
         startActivity(addBtnIntent);
     }
-    public void settingsBtn(){
+    /**public void settingsBtn(){
         Intent settingsBtnIntent = new Intent(CalendarActivity.this, SettingsActivity.class);
         startActivity(settingsBtnIntent);
-    }
+    }**/
 
     public void saveFile(File file) throws IOException{
         isWritePermissionGranted();
@@ -193,10 +196,10 @@ public class CalendarActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(CalendarActivity.this, "write permission granted", Toast.LENGTH_LONG).show();
+                //Toast.makeText(CalendarActivity.this, "permission granted", Toast.LENGTH_LONG).show();
                 return true;
             } else {
-                Toast.makeText(CalendarActivity.this, "write asking permission", Toast.LENGTH_LONG).show();
+                //Toast.makeText(CalendarActivity.this, "asking permission", Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
@@ -210,20 +213,42 @@ public class CalendarActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(CalendarActivity.this, "read permission granted", Toast.LENGTH_LONG).show();
-
                 return true;
             } else {
 
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                Toast.makeText(CalendarActivity.this, "read asking perm", Toast.LENGTH_LONG).show();
-
                 return false;
             }
         }
         else {
             return true;
         }
+    }
+
+    //Menu on create
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu,menu);
+        return true;
+    }
+
+
+    //handle click events on the menu
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.logoutMenu:{
+                logout();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    //logout method
+    private void logout(){
+        fbAuth.signOut();
+        finish();
+        startActivity(new Intent(CalendarActivity.this, LoginActivity.class));
     }
 }

@@ -43,6 +43,10 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(validateFill()){
                     //Check data with database whether it exists and is correct
+                    String email = loginEmail.getText().toString().trim();
+                    String password = loginPassword.getText().toString().trim();
+
+                    validateUser(email,password);
                 }
             }
         });
@@ -71,22 +75,11 @@ public class LoginActivity extends AppCompatActivity {
         //object to check if a user is already logged in
         FirebaseUser fbUser = fbAuth.getCurrentUser();
 
-        /**if(fbUser != null){
+        //check if there is a user already logged on
+        if(fbUser != null){
             finish();
             startActivity(new Intent(LoginActivity.this,CalendarActivity.class));
-        }**/
-
-
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String email = loginEmail.getText().toString().trim();
-                String password = loginPassword.getText().toString().trim();
-
-                validateUser(email,password);
-            }
-        });
+        }
     }
 
     //Validate whether user has filled in the necessary fields
@@ -100,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(this,"Please enter a valid Email", Toast.LENGTH_SHORT).show();
         }
 
-        if(email.isEmpty() && password.isEmpty()){
+        if(email.isEmpty() || password.isEmpty()){
             Toast.makeText(this,"Please enter all the details", Toast.LENGTH_SHORT).show();
         }else{
             result = true;
