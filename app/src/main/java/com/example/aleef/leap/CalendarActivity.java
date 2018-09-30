@@ -40,12 +40,12 @@ public class CalendarActivity extends AppCompatActivity {
     //private Button btnSettings;
     private String fileNameNew = "/storage/self/primary/testSavedEvents.txt";
     private String fileNameOld = "/storage/sdcard/testSavedEvents.txt";
-    Boolean fromEventCreate;
-    Date date;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    ArrayAdapter<String> adapter;
-    ArrayList<String> eventStringArrayList = new ArrayList<String>();
-    ArrayList<Event> eventArrayList =new ArrayList<Event>();
+    private Boolean fromEventCreate;
+    private Date date;
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private ArrayAdapter<String> adapter;
+    private ArrayList<String> eventStringArrayList = new ArrayList<String>();
+    private ArrayList<Event> eventArrayList =new ArrayList<Event>();
     private FirebaseAuth fbAuth;
 
 

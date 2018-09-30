@@ -10,7 +10,7 @@ public class Event implements Comparable<Event>{
     private String name;
     private String time;
     private Date date;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public Event(String name, String time){
         this.name = name;

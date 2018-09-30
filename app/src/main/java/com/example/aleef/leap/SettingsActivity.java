@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SettingsActivity extends AppCompatActivity {
-    ArrayAdapter<String> adapter;
-    ArrayList<String> arrayList;
-    String[] options;
+    private ArrayAdapter<String> adapter;
+    private ArrayList<String> arrayList;
+    private String[] options;
 
 
 
