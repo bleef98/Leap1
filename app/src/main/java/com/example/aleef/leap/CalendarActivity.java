@@ -42,6 +42,7 @@ public class CalendarActivity extends AppCompatActivity {
     private String fileNameNew = "/storage/self/primary/testSavedEvents.txt";
     private String fileNameOld = "/storage/sdcard/testSavedEvents.txt";
     private Boolean fromEventCreate;
+    private Boolean delete;
     private Date date;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private ArrayAdapter<String> adapter;
@@ -77,8 +78,29 @@ public class CalendarActivity extends AppCompatActivity {
 
         //Toast.makeText(CalendarActivity.this, fileNameNew,Toast.LENGTH_LONG).show();
         loadFile(file);
-
-        try {
+        try{
+            Intent incomingIntent = getIntent();
+            delete = incomingIntent.getExtras().getBoolean("delete");
+            String incomingName = incomingIntent.getStringExtra("eventDelete");
+            if(delete !=null && delete){
+                for(int i=0; i<eventArrayList.size(); i++){
+                    if(eventArrayList.get(i).getName().equals(incomingName)){
+                        eventArrayList.remove(i);
+                    }
+                }
+                try{
+                    saveFile(file);
+                }catch (IOException e){
+                    e.printStackTrace();
+                    Toast.makeText(CalendarActivity.this, "Error Saving Events",
+                            Toast.LENGTH_LONG).show();
+                }
+                delete=false;
+            }
+        }catch(RuntimeException e){
+            e.printStackTrace();
+        }
+        try{
             Intent incoming = getIntent();
             fromEventCreate = incoming.getExtras().getBoolean("create");
             if(fromEventCreate != null && fromEventCreate){
@@ -136,15 +158,15 @@ public class CalendarActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent eventOptionsPopupActivity = new Intent();
-                eventOptionsPopupActivity.putExtra("event", eventStringArrayList.get(position));
-                startActivity(eventOptionsPopupActivity);
+                eventClick(position);
             }
         });
     }
 
-    public void eventClick(){
-
+    public void eventClick(int position){
+        Intent eventOptionsPopupActivity = new Intent(CalendarActivity.this, EventOptionsPopupActivity.class);
+        eventOptionsPopupActivity.putExtra("eventName", eventArrayList.get(position).getName());
+        startActivity(eventOptionsPopupActivity);
     }
     public void checkEventsOnDay(){
 
@@ -152,13 +174,20 @@ public class CalendarActivity extends AppCompatActivity {
 
         eventStringArrayList.clear();
 
-        for(Event event : eventArrayList){
+        for(int i=0; i< eventArrayList.size();i++){
+            if(eventArrayList.get(i).getDate().equals(date)){
+                eventStringArrayList.add(eventArrayList.get(i).toString());
+            }else {
+                eventStringArrayList.remove(eventArrayList.get(i).toString());
+            }
+        }
+        /*for(Event event : eventArrayList){
             if(event.getDate().equals(date)){
                 eventStringArrayList.add(event.toString());
             }else {
                 eventStringArrayList.remove(event.toString());
             }
-        }
+        }*/
         adapter.notifyDataSetChanged();
     }
 
