@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -46,8 +47,8 @@ public class CalendarActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private ArrayList<String> eventStringArrayList = new ArrayList<String>();
     private ArrayList<Event> eventArrayList =new ArrayList<Event>();
+    private ListView listView;
     private FirebaseAuth fbAuth;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,7 +101,7 @@ public class CalendarActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        ListView listView = (ListView) findViewById(R.id.eventList);
+        listView = (ListView) findViewById(R.id.eventList);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, eventStringArrayList);
         listView.setAdapter(adapter);
 
@@ -131,9 +132,20 @@ public class CalendarActivity extends AppCompatActivity {
                 addBtn();
             }
         });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent eventOptionsPopupActivity = new Intent();
+                eventOptionsPopupActivity.putExtra("event", eventStringArrayList.get(position));
+                startActivity(eventOptionsPopupActivity);
+            }
+        });
     }
 
+    public void eventClick(){
 
+    }
     public void checkEventsOnDay(){
 
         Collections.sort(eventArrayList);
