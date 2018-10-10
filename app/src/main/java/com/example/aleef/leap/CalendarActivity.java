@@ -69,6 +69,12 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
+        try {
+            date = sdf.parse(sdf.format(new Date()));
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+
         File file;
         if (Build.VERSION.SDK_INT >= 23) {
             file = new File(fileNameNew);
@@ -79,6 +85,8 @@ public class CalendarActivity extends AppCompatActivity {
 
         //Toast.makeText(CalendarActivity.this, fileNameNew,Toast.LENGTH_LONG).show();
         loadFile(file);
+
+        // if coming from delete event
         try{
             Intent incomingIntent = getIntent();
             delete = incomingIntent.getExtras().getBoolean("delete");
@@ -101,6 +109,8 @@ public class CalendarActivity extends AppCompatActivity {
         }catch(RuntimeException e){
             e.printStackTrace();
         }
+
+        // if coming from create event
         try{
             Intent incoming = getIntent();
             fromEventCreate = incoming.getExtras().getBoolean("create");
@@ -109,6 +119,8 @@ public class CalendarActivity extends AppCompatActivity {
                 String time = incoming.getStringExtra("time");
                 String strDate = incoming.getStringExtra("strDate");
                 try {
+                    Toast.makeText(CalendarActivity.this, strDate,
+                            Toast.LENGTH_LONG).show();
                     date = (sdf.parse(strDate));
                     millsDate = date.getTime();
 
@@ -139,11 +151,6 @@ public class CalendarActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, eventStringArrayList);
         listView.setAdapter(adapter);
 
-        try {
-            date = sdf.parse(sdf.format(new Date()));
-        }catch (ParseException e){
-            e.printStackTrace();
-        }
         try{
             if(fromEventCreate){
                 try{
