@@ -144,7 +144,7 @@ public class CalendarActivity extends AppCompatActivity {
         }catch (ParseException e){
             e.printStackTrace();
         }
-        //checkEventsOnDay();
+        checkEventsOnDay();
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
@@ -162,7 +162,6 @@ public class CalendarActivity extends AppCompatActivity {
             if(fromEventCreate){
                 try{
                     mCalendarView.setDate(millsDate);
-                    checkEventsOnDay();
                 }catch(Exception e){
                     e.printStackTrace();
                 }
