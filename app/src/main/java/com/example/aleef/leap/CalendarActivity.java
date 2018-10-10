@@ -144,6 +144,17 @@ public class CalendarActivity extends AppCompatActivity {
         }catch (ParseException e){
             e.printStackTrace();
         }
+        try{
+            if(fromEventCreate){
+                try{
+                    mCalendarView.setDate(millsDate);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
         checkEventsOnDay();
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
@@ -158,18 +169,6 @@ public class CalendarActivity extends AppCompatActivity {
                 checkEventsOnDay();
             }
         });
-        try{
-            if(fromEventCreate){
-                try{
-                    mCalendarView.setDate(millsDate);
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
 
         fromEventCreate = false;
         btnAdd.setOnClickListener(new View.OnClickListener() {
