@@ -69,6 +69,7 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
+        // instantiates date
         try {
             date = sdf.parse(sdf.format(new Date()));
         }catch (ParseException e){
@@ -119,8 +120,6 @@ public class CalendarActivity extends AppCompatActivity {
                 String time = incoming.getStringExtra("time");
                 String strDate = incoming.getStringExtra("strDate");
                 try {
-                    Toast.makeText(CalendarActivity.this, strDate,
-                            Toast.LENGTH_LONG).show();
                     date = (sdf.parse(strDate));
                     millsDate = date.getTime();
 
