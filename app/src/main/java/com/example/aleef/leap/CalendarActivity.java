@@ -44,10 +44,11 @@ public class CalendarActivity extends AppCompatActivity {
     private Boolean fromEventCreate;
     private Boolean delete;
     private Date date;
+    long millsDate;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private ArrayAdapter<String> adapter;
     private ArrayList<String> eventStringArrayList = new ArrayList<String>();
-    private ArrayList<Event> eventArrayList =new ArrayList<Event>();
+    private ArrayList<Event> eventArrayList = new ArrayList<Event>();
     private ListView listView;
     private FirebaseAuth fbAuth;
 
@@ -107,6 +108,17 @@ public class CalendarActivity extends AppCompatActivity {
                 String name = incoming.getStringExtra("name");
                 String time = incoming.getStringExtra("time");
                 String strDate = incoming.getStringExtra("strDate");
+                try {
+                    date = (sdf.parse(strDate));
+                    millsDate = date.getTime();
+
+                    //checkEventsOnDay();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    Toast.makeText(CalendarActivity.this, "Error going to day",
+                            Toast.LENGTH_LONG).show();
+                }
+
                 Event event = new Event(name, time, strDate);
                 eventArrayList.add(event);
 
@@ -118,7 +130,7 @@ public class CalendarActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                 }
             }
-            fromEventCreate = false;
+
         }catch(RuntimeException e){
             e.printStackTrace();
         }
@@ -132,8 +144,7 @@ public class CalendarActivity extends AppCompatActivity {
         }catch (ParseException e){
             e.printStackTrace();
         }
-        checkEventsOnDay();
-
+        //checkEventsOnDay();
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
@@ -147,7 +158,21 @@ public class CalendarActivity extends AppCompatActivity {
                 checkEventsOnDay();
             }
         });
+        try{
+            if(fromEventCreate){
+                try{
+                    mCalendarView.setDate(millsDate);
+                    checkEventsOnDay();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
 
+
+        fromEventCreate = false;
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,12 +189,23 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     public void eventClick(int position){
-        Intent eventOptionsPopupActivity = new Intent(CalendarActivity.this, EventOptionsPopupActivity.class);
-        eventOptionsPopupActivity.putExtra("eventName", eventArrayList.get(position).getName());
-        startActivity(eventOptionsPopupActivity);
+        ArrayList<Event> eventDayArrayList = new ArrayList<>();
+        eventDayArrayList.clear();
+        for(int i=0; i< eventArrayList.size();i++){
+            if(eventArrayList.get(i).getDate().equals(date)){
+                eventDayArrayList.add(eventArrayList.get(i));
+            }
+        }
+
+        String strDate = sdf.format(date);
+
+        Intent eventPopupActivity = new Intent(CalendarActivity.this, EventOptionsPopupActivity.class);
+        eventPopupActivity.putExtra("eventName", eventDayArrayList.get(position).getName());
+        eventPopupActivity.putExtra("date", strDate);
+
+        startActivity(eventPopupActivity);
     }
     public void checkEventsOnDay(){
-
         Collections.sort(eventArrayList);
 
         eventStringArrayList.clear();
@@ -188,6 +224,8 @@ public class CalendarActivity extends AppCompatActivity {
                 eventStringArrayList.remove(event.toString());
             }
         }*/
+        //Toast.makeText(CalendarActivity.this, eventStringArrayList.get(0), Toast.LENGTH_LONG).show();
+
         adapter.notifyDataSetChanged();
     }
 
@@ -195,6 +233,7 @@ public class CalendarActivity extends AppCompatActivity {
         Intent addBtnIntent = new Intent(CalendarActivity.this, CreateEventActivity.class);
         String strDate = sdf.format(date);
         addBtnIntent.putExtra("date", strDate);
+
         startActivity(addBtnIntent);
     }
     /**public void settingsBtn(){

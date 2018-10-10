@@ -13,6 +13,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
     TextView tvEventName;
     Button btnDelete;
     String eventName = new String();
+    String date = new String();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
                 Intent delete = new Intent(EventOptionsPopupActivity.this, CalendarActivity.class);
                 delete.putExtra("delete", true);
                 delete.putExtra("eventDelete", eventName);
+                delete.putExtra("date", date);
 
                 startActivity(delete);
             }

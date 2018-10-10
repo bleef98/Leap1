@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CreateEventActivity  extends AppCompatActivity {
     private EditText name;
@@ -21,9 +22,10 @@ public class CreateEventActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
-
         Intent incoming = getIntent();
         strDate = incoming.getStringExtra("date");
+        Toast.makeText(CreateEventActivity.this, strDate, Toast.LENGTH_LONG).show();
+
 
         missingInputWarning = (TextView) findViewById(R.id.missingInputWarningText);
         timeFormatWarning = (TextView) findViewById(R.id.badInputTypeText);
