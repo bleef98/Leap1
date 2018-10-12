@@ -87,7 +87,7 @@ public class CalendarActivity extends AppCompatActivity {
         //Toast.makeText(CalendarActivity.this, fileNameNew,Toast.LENGTH_LONG).show();
         loadFile(file);
 
-        // if coming from delete event
+        // if coming from delete event, it deletes the event
         try{
             Intent incomingIntent = getIntent();
             delete = incomingIntent.getExtras().getBoolean("delete");
@@ -111,7 +111,7 @@ public class CalendarActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // if coming from create event
+        // if coming from create event, this code creates an event
         try{
             Intent incoming = getIntent();
             fromEventCreate = incoming.getExtras().getBoolean("create");
@@ -123,7 +123,6 @@ public class CalendarActivity extends AppCompatActivity {
                     date = (sdf.parse(strDate));
                     millsDate = date.getTime();
 
-                    //checkEventsOnDay();
                 } catch (ParseException e) {
                     e.printStackTrace();
                     Toast.makeText(CalendarActivity.this, "Error going to day",
@@ -133,6 +132,7 @@ public class CalendarActivity extends AppCompatActivity {
                 Event event = new Event(name, time, strDate);
                 eventArrayList.add(event);
 
+                // saves the events
                 try{
                     saveFile(file);
                 }catch (IOException e){
@@ -150,6 +150,8 @@ public class CalendarActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, eventStringArrayList);
         listView.setAdapter(adapter);
 
+        // changes the date the calender is on to the day it was on before the user clicked
+        // create event.  In the  future it will do the same for when the user clicks delete event
         try{
             if(fromEventCreate){
                 try{
@@ -161,7 +163,11 @@ public class CalendarActivity extends AppCompatActivity {
         }catch(NullPointerException e){
             e.printStackTrace();
         }
+
+        // shows the events on the selected day
         checkEventsOnDay();
+
+        // When the user clicks a day on the calendar this code is triggered
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
@@ -177,6 +183,7 @@ public class CalendarActivity extends AppCompatActivity {
         });
 
         fromEventCreate = false;
+
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,7 +199,10 @@ public class CalendarActivity extends AppCompatActivity {
         });
     }
 
+    // Called when the user clicks an event
     public void eventClick(int position){
+        // gets events all the events from eventArrayList that are on the same day as the clicked
+        // event, and puts them in eventDayArrayList
         ArrayList<Event> eventDayArrayList = new ArrayList<>();
         eventDayArrayList.clear();
         for(int i=0; i< eventArrayList.size();i++){
@@ -209,6 +219,10 @@ public class CalendarActivity extends AppCompatActivity {
 
         startActivity(eventPopupActivity);
     }
+
+    // Searches eventArrayList for all events on the selected day and converts each event into 1
+    // string and puts that string in eventStringArrayList. eventStringArrayList is then displayed
+    // on screen
     public void checkEventsOnDay(){
         Collections.sort(eventArrayList);
 
@@ -221,15 +235,9 @@ public class CalendarActivity extends AppCompatActivity {
                 eventStringArrayList.remove(eventArrayList.get(i).toString());
             }
         }
-        /*for(Event event : eventArrayList){
-            if(event.getDate().equals(date)){
-                eventStringArrayList.add(event.toString());
-            }else {
-                eventStringArrayList.remove(event.toString());
-            }
-        }*/
         //Toast.makeText(CalendarActivity.this, eventStringArrayList.get(0), Toast.LENGTH_LONG).show();
 
+        // updates the events in the listview so that the user can see them
         adapter.notifyDataSetChanged();
     }
 
@@ -244,6 +252,7 @@ public class CalendarActivity extends AppCompatActivity {
         Intent settingsBtnIntent = new Intent(CalendarActivity.this, SettingsActivity.class);
         startActivity(settingsBtnIntent);
     }**/
+
 
     public void saveFile(File file) throws IOException{
         isWritePermissionGranted();
@@ -281,6 +290,9 @@ public class CalendarActivity extends AppCompatActivity {
         }
 
     }
+
+    // This checks that the app has permission to Write to the device.
+    // If it does not then the user is prompted to give the app permission
     public  boolean isWritePermissionGranted() {
         //Toast.makeText(CalendarActivity.this, "asking permission", Toast.LENGTH_LONG).show();
         if (Build.VERSION.SDK_INT >= 23) {
@@ -299,6 +311,8 @@ public class CalendarActivity extends AppCompatActivity {
             return true;
         }
     }
+    // This checks that the app has permission to Read from the device.
+    // If it does not then the user is prompted to give the app permission
     public  boolean isReadPermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)

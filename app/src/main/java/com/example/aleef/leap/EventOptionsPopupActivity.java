@@ -18,6 +18,8 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // This stuff is what makes this activity a small box
         try{
             getSupportActionBar().hide();
         }catch(NullPointerException e){
@@ -35,6 +37,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
         Intent incomingIntent = getIntent();
         eventName = incomingIntent.getStringExtra("eventName");
 
+        // Shows the name of the event at the top of the box
         tvEventName = (TextView) findViewById(R.id.tVEventName);
         tvEventName.setText(eventName);
 

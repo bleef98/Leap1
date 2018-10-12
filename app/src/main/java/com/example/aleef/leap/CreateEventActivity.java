@@ -24,8 +24,6 @@ public class CreateEventActivity  extends AppCompatActivity {
 
         Intent incoming = getIntent();
         strDate = incoming.getStringExtra("date");
-        Toast.makeText(CreateEventActivity.this, strDate, Toast.LENGTH_LONG).show();
-
 
         missingInputWarning = (TextView) findViewById(R.id.missingInputWarningText);
         timeFormatWarning = (TextView) findViewById(R.id.badInputTypeText);
@@ -42,6 +40,8 @@ public class CreateEventActivity  extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //createBtn(name.getText().toString(), time.getText().toString());
+
+                // validates input
                 if(isInputEmpty(name.getText().toString(), time.getText().toString())){
                     missingInputWarning.setVisibility(View.VISIBLE);
                 }
@@ -67,6 +67,8 @@ public class CreateEventActivity  extends AppCompatActivity {
             }
         });
     }
+
+    // Ensures that no fields are blank
     public boolean isInputEmpty(String nameInput, String timeInput){
         if(nameInput.equals("") || timeInput.equals("")){
             return true;
@@ -75,6 +77,9 @@ public class CreateEventActivity  extends AppCompatActivity {
             return false;
         }
     }
+
+    // Checks the format of the inputed time. For example 12:10.
+    // Must be 2 numbers then ":" then 2 numbers
     public boolean isInvalidTime(String timeInput){
         if(timeInput.matches("\\d{2}:\\d{2}")){
             return false;
@@ -83,9 +88,8 @@ public class CreateEventActivity  extends AppCompatActivity {
             return true;
         }
     }
-
+/*
     public int createBtn(String nameInput, String timeInput){
-
         if(nameInput.equals("") || timeInput.equals("")){
             missingInputWarning.setVisibility(View.VISIBLE);
             return 0;
@@ -104,5 +108,5 @@ public class CreateEventActivity  extends AppCompatActivity {
             startActivity(intent);
             return 2;
         }
-    }
+    }*/
 }
