@@ -10,6 +10,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * When the user clicks create event this class is called.
+ * The date the user had selected when they clicked create event is passed in through an Intent.
+ * When the user clicks create the name and time they entered is validated. If they are valid
+ * inputs then then date, name and time are passed to CalendarActivity through an intent where
+ * they are turned into an event and saved.
+ *
+ */
 public class CreateEventActivity  extends AppCompatActivity {
     private EditText name;
     private EditText time;
@@ -39,9 +47,7 @@ public class CreateEventActivity  extends AppCompatActivity {
         btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //createBtn(name.getText().toString(), time.getText().toString());
-
-                // validates input
+                // validates input and tells the user if and why the input was not valid
                 if(isInputEmpty(name.getText().toString(), time.getText().toString())){
                     missingInputWarning.setVisibility(View.VISIBLE);
                 }
@@ -49,6 +55,12 @@ public class CreateEventActivity  extends AppCompatActivity {
                     timeFormatWarning.setVisibility(View.VISIBLE);
                 }
                 else{
+                    /**
+                     * if the input is valid then the input and the date are passed back to
+                     * CalendarActivity. Information is passed as Strings because Event objects
+                     * cannot be passed through an Intent. Create is set to true to tell
+                     * CalendarActivity that the information to create an Event has been passed in.
+                      */
                     Intent intent = new Intent(CreateEventActivity.this, CalendarActivity.class);
                     intent.putExtra("create", true);
                     intent.putExtra("name", name.getText().toString());
@@ -59,6 +71,10 @@ public class CreateEventActivity  extends AppCompatActivity {
                 }
             }
         });
+        /**
+         * If the user clicks cancel then the application goes back to CalendarActivity without
+         * passing any data.
+         */
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +84,7 @@ public class CreateEventActivity  extends AppCompatActivity {
         });
     }
 
-    // Ensures that no fields are blank
+    // Ensures that no input fields are blank
     public boolean isInputEmpty(String nameInput, String timeInput){
         if(nameInput.equals("") || timeInput.equals("")){
             return true;
@@ -77,9 +93,11 @@ public class CreateEventActivity  extends AppCompatActivity {
             return false;
         }
     }
-
-    // Checks the format of the inputed time. For example 12:10.
-    // Must be 2 numbers then ":" then 2 numbers
+    /**
+     * Checks the format of the inputed time. For example 12:10.
+     * Must be 2 numbers then ":" then 2 numbers.
+     * If the input is invalid it returns true.
+      */
     public boolean isInvalidTime(String timeInput){
         if(timeInput.matches("\\d{2}:\\d{2}")){
             return false;
@@ -88,25 +106,4 @@ public class CreateEventActivity  extends AppCompatActivity {
             return true;
         }
     }
-/*
-    public int createBtn(String nameInput, String timeInput){
-        if(nameInput.equals("") || timeInput.equals("")){
-            missingInputWarning.setVisibility(View.VISIBLE);
-            return 0;
-        }
-        else if(!(timeInput.matches("\\d{2}:\\d{2}"))){
-            timeFormatWarning.setVisibility(View.VISIBLE);
-            return 1;
-        }
-        else{
-            Intent intent = new Intent(CreateEventActivity.this, CalendarActivity.class);
-            intent.putExtra("create", true);
-            intent.putExtra("name", nameInput);
-            intent.putExtra("time", timeInput);
-            intent.putExtra("strDate", strDate);
-
-            startActivity(intent);
-            return 2;
-        }
-    }*/
 }
