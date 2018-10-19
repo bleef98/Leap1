@@ -36,6 +36,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
 
         Intent incomingIntent = getIntent();
         eventName = incomingIntent.getStringExtra("eventName");
+        date = incomingIntent.getStringExtra("date");
 
         // Shows the name of the event at the top of the box
         tvEventName = (TextView) findViewById(R.id.tVEventName);

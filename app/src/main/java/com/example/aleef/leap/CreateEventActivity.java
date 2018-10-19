@@ -8,7 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * When the user clicks create event this class is called.
@@ -24,6 +26,7 @@ public class CreateEventActivity  extends AppCompatActivity {
     private String strDate;
     private TextView timeFormatWarning;
     private TextView missingInputWarning;
+    ArrayList<Event> createEventArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,6 +35,10 @@ public class CreateEventActivity  extends AppCompatActivity {
 
         Intent incoming = getIntent();
         strDate = incoming.getStringExtra("date");
+
+        //new
+        //Bundle args = incoming.getBundleExtra("args");
+        //createEventArrayList =(ArrayList<Event>) args.getSerializable("arraylist");
 
         missingInputWarning = (TextView) findViewById(R.id.missingInputWarningText);
         timeFormatWarning = (TextView) findViewById(R.id.badInputTypeText);
