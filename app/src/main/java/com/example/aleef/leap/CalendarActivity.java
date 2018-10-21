@@ -124,7 +124,7 @@ public class CalendarActivity extends AppCompatActivity {
                 if(fields==3){
                     eventArrayList.clear();
                     //createEventArrayList = (ArrayList<Event>) dataSnapshot.child(uid).child(saveArrayName).getValue(type);
-                    System.out.println("This reading DATABASE");
+                    //System.out.println("This reading DATABASE");
 
                     //Integer i=1;
                     Integer index=0;
