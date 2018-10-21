@@ -72,6 +72,7 @@ public class CreateEventActivity  extends AppCompatActivity {
                     intent.putExtra("create", true);
                     intent.putExtra("name", name.getText().toString());
                     intent.putExtra("time", time.getText().toString());
+                    intent.putExtra("dateChange", true);
                     intent.putExtra("strDate", strDate);
 
                     startActivity(intent);
@@ -86,6 +87,8 @@ public class CreateEventActivity  extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CreateEventActivity.this, CalendarActivity.class);
+                intent.putExtra("dateChange", true);
+                intent.putExtra("strDate", strDate);
                 startActivity(intent);
             }
         });

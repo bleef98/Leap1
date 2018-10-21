@@ -49,8 +49,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
                 Intent delete = new Intent(EventOptionsPopupActivity.this, CalendarActivity.class);
                 delete.putExtra("delete", true);
                 delete.putExtra("eventDelete", eventName);
-                delete.putExtra("date", date);
-
+                delete.putExtra("dateChange", true);
                 startActivity(delete);
             }
         });
@@ -60,6 +59,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent close = new Intent(EventOptionsPopupActivity.this, CalendarActivity.class);
                 close.putExtra("date", date);
+                close.putExtra("dateChange", true);
                 startActivity(close);
             }
         });
