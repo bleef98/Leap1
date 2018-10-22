@@ -30,8 +30,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView registerLink;
     private FirebaseAuth fbAuth;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(validateFill()){
-                    //Check data with database whether it exists and is correct
+                    //Check data with databaseRef whether it exists and is correct
                     String email = loginEmail.getText().toString().trim();
                     String password = loginPassword.getText().toString().trim();
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -18,15 +19,22 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,12 +42,10 @@ import java.util.Collections;
 import java.util.Date;
 
 public class CalendarActivity extends AppCompatActivity {
-
     private CalendarView mCalendarView;
     private Button btnAdd;
     private Button logoutBtn;
-    //private Button btnSettings;
-    private String fileNameNew = "/storage/self/primary/testSavedEvents.txt";
+    private String fileNameNew = "/storage/self/primary/testSavedEventswDB.txt";
     private String fileNameOld = "/storage/sdcard/testSavedEvents.txt";
     private Boolean fromEventCreate;
     private Boolean delete;
@@ -48,35 +54,38 @@ public class CalendarActivity extends AppCompatActivity {
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     private ArrayAdapter<String> adapter;
     private ArrayList<String> eventStringArrayList = new ArrayList<String>();
-    private ArrayList<Event> eventArrayList = new ArrayList<Event>();
+    ArrayList<Event> eventArrayList = new ArrayList<>();
     private ListView listView;
     private FirebaseAuth fbAuth;
+    SaveEvents sEvents;
+    FirebaseDatabase db;
+    DatabaseReference databaseRef;
+    FirebaseUser user;
+    String uid;
+    ValueEventListener listen;
+    File file;
+    Intent incomingIntent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(null/*savedInstanceState*/);
         setContentView(R.layout.activity_calendar);
         mCalendarView = (CalendarView) findViewById(R.id.calendarView);
         btnAdd = (Button) findViewById(R.id.btnAdd);
         logoutBtn = (Button)findViewById(R.id.logoutBtn);
-        //btnSettings = (Button) findViewById(R.id.btnSettings);
         fbAuth = FirebaseAuth.getInstance();
+        db = FirebaseDatabase.getInstance();
 
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logout();
-            }
-        });
+        user = fbAuth.getInstance().getCurrentUser();
+        uid = user.getUid();
 
-        // instantiates date
+        databaseRef = db.getReference().child(uid);
         try {
             date = sdf.parse(sdf.format(new Date()));
         }catch (ParseException e){
             e.printStackTrace();
         }
 
-        File file;
         if (Build.VERSION.SDK_INT >= 23) {
             file = new File(fileNameNew);
         }
@@ -84,85 +93,130 @@ public class CalendarActivity extends AppCompatActivity {
             file = new File(fileNameOld);
         }
 
-        //Toast.makeText(CalendarActivity.this, fileNameNew,Toast.LENGTH_LONG).show();
-        loadFile(file);
+        listen = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                int fields = 3;
+                for(DataSnapshot snap : dataSnapshot.getChildren()){
+                    if((int) snap.getChildrenCount()<fields){
+                        fields =(int) snap.getChildrenCount();
+                        break;
+                    }
+                }
+                if(fields==3){
+                    eventArrayList.clear();
+
+                    for(DataSnapshot snap : dataSnapshot.getChildren()){
+                        Event event = new Event(snap.child("name").getValue(String.class),
+                                snap.child("time").getValue(String.class),
+                                snap.child("date").getValue(String.class));
+                        eventArrayList.add(event);
+                    }
+
+                    checkEventsOnDay();
+                }
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+
+        databaseRef.addValueEventListener(listen);
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {//
+                logout();
+            }
+        });
+
+        // gets incoming intent
+        try{
+            incomingIntent = getIntent();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
 
         // if coming from delete event, it deletes the event
         try{
-            Intent incomingIntent = getIntent();
             delete = incomingIntent.getExtras().getBoolean("delete");
-            String incomingName = incomingIntent.getStringExtra("eventDelete");
             if(delete !=null && delete){
+                String incomingName = incomingIntent.getStringExtra("eventDelete");
+                loadFile(file);
                 for(int i=0; i<eventArrayList.size(); i++){
                     if(eventArrayList.get(i).getName().equals(incomingName)){
                         eventArrayList.remove(i);
                     }
                 }
-                try{
-                    saveFile(file);
-                }catch (IOException e){
-                    e.printStackTrace();
-                    Toast.makeText(CalendarActivity.this, "Error Saving Events",
-                            Toast.LENGTH_LONG).show();
+
+                // saves the events to DB
+                databaseRef.removeValue();
+                for(Integer i=0; i< eventArrayList.size(); i++){
+                    databaseRef.child(i.toString()).child("date").setValue(sdf.format(eventArrayList.get(i).getDate()));
+                    databaseRef.child(i.toString()).child("name").setValue(eventArrayList.get(i).getName());
+                    databaseRef.child(i.toString()).child("time").setValue(eventArrayList.get(i).getTime());
                 }
-                delete=false;
             }
-        }catch(RuntimeException e){
+        }catch(Exception e){
             e.printStackTrace();
         }
 
         // if coming from create event, this code creates an event
         try{
-            Intent incoming = getIntent();
-            fromEventCreate = incoming.getExtras().getBoolean("create");
+            fromEventCreate = incomingIntent.getExtras().getBoolean("create");
             if(fromEventCreate != null && fromEventCreate){
-                String name = incoming.getStringExtra("name");
-                String time = incoming.getStringExtra("time");
-                String strDate = incoming.getStringExtra("strDate");
-                try {
-                    date = (sdf.parse(strDate));
-                    millsDate = date.getTime();
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    Toast.makeText(CalendarActivity.this, "Error going to day",
-                            Toast.LENGTH_LONG).show();
-                }
+                loadFile(file);
+                String name = incomingIntent.getStringExtra("name");
+                String time = incomingIntent.getStringExtra("time");
+                String strDate = incomingIntent.getStringExtra("strDate");
 
                 Event event = new Event(name, time, strDate);
                 eventArrayList.add(event);
 
-                // saves the events
-                try{
-                    saveFile(file);
-                }catch (IOException e){
-                    e.printStackTrace();
-                    Toast.makeText(CalendarActivity.this, "Error Saving Events",
-                            Toast.LENGTH_LONG).show();
+                databaseRef.removeValue();
+
+                // saves the events to DB
+                for(Integer i=0; i< eventArrayList.size(); i++){
+                    databaseRef.child(i.toString()).child("date").setValue(sdf.format(eventArrayList.get(i).getDate()));
+                    databaseRef.child(i.toString()).child("name").setValue(eventArrayList.get(i).getName());
+                    databaseRef.child(i.toString()).child("time").setValue(eventArrayList.get(i).getTime());
                 }
             }
 
-        }catch(RuntimeException e){
+        }catch(Exception e){
             e.printStackTrace();
         }
+        databaseRef.addValueEventListener(listen);
 
         listView = (ListView) findViewById(R.id.eventList);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, eventStringArrayList);
         listView.setAdapter(adapter);
 
         // changes the date the calender is on to the day it was on before the user clicked
-        // create event.  In the  future it will do the same for when the user clicks delete event
+        // create event or clicked on an event.
+
         try{
-            if(fromEventCreate){
-                try{
-                    mCalendarView.setDate(millsDate);
-                }catch(Exception e){
+            Boolean dateChange = incomingIntent.getExtras().getBoolean("dateChange");
+            String strDate = incomingIntent.getStringExtra("strDate");
+
+            if(dateChange != null && dateChange){
+                try {
+                    date = (sdf.parse(strDate));
+                    millsDate = date.getTime();
+                } catch (ParseException e) {
                     e.printStackTrace();
+                    Toast.makeText(CalendarActivity.this, "Error going to day",
+                            Toast.LENGTH_LONG).show();
                 }
+                setDate();
             }
-        }catch(NullPointerException e){
+        }catch(RuntimeException e){
             e.printStackTrace();
         }
+        delete=false;
+        fromEventCreate = false;
 
         // shows the events on the selected day
         checkEventsOnDay();
@@ -182,8 +236,6 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
-        fromEventCreate = false;
-
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,11 +249,24 @@ public class CalendarActivity extends AppCompatActivity {
                 eventClick(position);
             }
         });
+
+
+    }
+    public void setDate(){
+        try{
+            mCalendarView.setDate(millsDate);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     // Called when the user clicks an event
     public void eventClick(int position){
-        // gets events all the events from eventArrayList that are on the same day as the clicked
+        try{
+            saveFile();
+        }catch(IOException e){e.printStackTrace(); }
+
+        // gets events all the events from createEventArrayList that are on the same day as the clicked
         // event, and puts them in eventDayArrayList
         ArrayList<Event> eventDayArrayList = new ArrayList<>();
         eventDayArrayList.clear();
@@ -220,43 +285,45 @@ public class CalendarActivity extends AppCompatActivity {
         startActivity(eventPopupActivity);
     }
 
-    // Searches eventArrayList for all events on the selected day and converts each event into 1
+    // Searches createEventArrayList for all events on the selected day and converts each event into 1
     // string and puts that string in eventStringArrayList. eventStringArrayList is then displayed
     // on screen
     public void checkEventsOnDay(){
-        Collections.sort(eventArrayList);
+        try{
+            Collections.sort(eventArrayList);
+            eventStringArrayList.clear();
 
-        eventStringArrayList.clear();
-
-        for(int i=0; i< eventArrayList.size();i++){
-            if(eventArrayList.get(i).getDate().equals(date)){
-                eventStringArrayList.add(eventArrayList.get(i).toString());
-            }else {
-                eventStringArrayList.remove(eventArrayList.get(i).toString());
+            for(int i=0; i< eventArrayList.size();i++){
+                if(eventArrayList.get(i).getDate().equals(date)){
+                    eventStringArrayList.add(eventArrayList.get(i).toString());
+                }else {
+                    eventStringArrayList.remove(eventArrayList.get(i).toString());
+                }
             }
-        }
-        //Toast.makeText(CalendarActivity.this, eventStringArrayList.get(0), Toast.LENGTH_LONG).show();
 
-        // updates the events in the listview so that the user can see them
-        adapter.notifyDataSetChanged();
+            // updates the events in the listview so that the user can see them
+            adapter.notifyDataSetChanged();
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
+
     }
 
     public void addBtn() {
+        try{
+            saveFile();
+        }catch(IOException e){e.printStackTrace(); }
+
         Intent addBtnIntent = new Intent(CalendarActivity.this, CreateEventActivity.class);
         String strDate = sdf.format(date);
         addBtnIntent.putExtra("date", strDate);
 
         startActivity(addBtnIntent);
     }
-    /**public void settingsBtn(){
-        Intent settingsBtnIntent = new Intent(CalendarActivity.this, SettingsActivity.class);
-        startActivity(settingsBtnIntent);
-    }**/
 
-
-    public void saveFile(File file) throws IOException{
+    public void saveFile() throws IOException{
         isWritePermissionGranted();
-
         FileOutputStream fos = new FileOutputStream(file);
         for(Event event: eventArrayList){
             fos.write(event.toCsvString().getBytes());
@@ -284,24 +351,22 @@ public class CalendarActivity extends AppCompatActivity {
             }catch (IOException e){
                 e.printStackTrace();
             }
+
         }catch(IOException e){
             e.printStackTrace();
-            //Toast.makeText(CalendarActivity.this, "Error Loading Events", Toast.LENGTH_LONG).show();
+            Toast.makeText(CalendarActivity.this, "Error Loading Events", Toast.LENGTH_LONG).show();
         }
-
+        Collections.sort(eventArrayList);
     }
 
     // This checks that the app has permission to Write to the device.
     // If it does not then the user is prompted to give the app permission
     public  boolean isWritePermissionGranted() {
-        //Toast.makeText(CalendarActivity.this, "asking permission", Toast.LENGTH_LONG).show();
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                //Toast.makeText(CalendarActivity.this, "permission granted", Toast.LENGTH_LONG).show();
                 return true;
             } else {
-                //Toast.makeText(CalendarActivity.this, "asking permission", Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;

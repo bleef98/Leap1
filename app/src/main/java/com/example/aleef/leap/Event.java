@@ -1,12 +1,15 @@
 package com.example.aleef.leap;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Event implements Comparable<Event>{
+public class Event implements Comparable<Event> {
     private String name;
     private String time;
     private Date date;
@@ -64,5 +67,35 @@ public class Event implements Comparable<Event>{
         this.name = name;
     }
 
+
+
+/*
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(getDate().getTime());
+        dest.writeString(getName());
+        dest.writeString(getTime());
+    }
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+
+        @Override
+        public Event createFromParcel(Parcel source) {
+            return new Event(source);
+        }
+    };
+    public Event(Parcel source){
+        date = new Date(source.readLong());
+        name = source.readString();
+        time = source.readString();
+    }*/
 
 }

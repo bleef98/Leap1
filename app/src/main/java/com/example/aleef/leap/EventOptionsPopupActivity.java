@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class EventOptionsPopupActivity extends AppCompatActivity {
     TextView tvEventName;
-    Button btnDelete;
+    Button btnDelete, btnClose;
     String eventName = new String();
     String date = new String();
 
@@ -36,6 +36,7 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
 
         Intent incomingIntent = getIntent();
         eventName = incomingIntent.getStringExtra("eventName");
+        date = incomingIntent.getStringExtra("date");
 
         // Shows the name of the event at the top of the box
         tvEventName = (TextView) findViewById(R.id.tVEventName);
@@ -48,9 +49,19 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
                 Intent delete = new Intent(EventOptionsPopupActivity.this, CalendarActivity.class);
                 delete.putExtra("delete", true);
                 delete.putExtra("eventDelete", eventName);
-                delete.putExtra("date", date);
-
+                delete.putExtra("dateChange", true);
+                delete.putExtra("strDate", date);
                 startActivity(delete);
+            }
+        });
+        btnClose = (Button) findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent close = new Intent(EventOptionsPopupActivity.this, CalendarActivity.class);
+                close.putExtra("strDate", date);
+                close.putExtra("dateChange", true);
+                startActivity(close);
             }
         });
     }
