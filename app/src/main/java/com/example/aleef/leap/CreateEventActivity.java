@@ -36,10 +36,6 @@ public class CreateEventActivity  extends AppCompatActivity {
         Intent incoming = getIntent();
         strDate = incoming.getStringExtra("date");
 
-        //new
-        //Bundle args = incoming.getBundleExtra("args");
-        //createEventArrayList =(ArrayList<Event>) args.getSerializable("arraylist");
-
         missingInputWarning = (TextView) findViewById(R.id.missingInputWarningText);
         timeFormatWarning = (TextView) findViewById(R.id.badInputTypeText);
         timeFormatWarning.setVisibility(View.INVISIBLE);

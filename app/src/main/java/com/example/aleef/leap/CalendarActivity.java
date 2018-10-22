@@ -64,6 +64,7 @@ public class CalendarActivity extends AppCompatActivity {
     String uid;
     ValueEventListener listen;
     File file;
+    Intent incomingIntent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class CalendarActivity extends AppCompatActivity {
         else{
             file = new File(fileNameOld);
         }
+
         listen = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -129,12 +131,19 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
+        // gets incoming intent
+        try{
+            incomingIntent = getIntent();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
         // if coming from delete event, it deletes the event
         try{
-            Intent incomingIntent = getIntent();
             delete = incomingIntent.getExtras().getBoolean("delete");
-            String incomingName = incomingIntent.getStringExtra("eventDelete");
             if(delete !=null && delete){
+                String incomingName = incomingIntent.getStringExtra("eventDelete");
                 loadFile(file);
                 for(int i=0; i<eventArrayList.size(); i++){
                     if(eventArrayList.get(i).getName().equals(incomingName)){
@@ -150,19 +159,18 @@ public class CalendarActivity extends AppCompatActivity {
                     databaseRef.child(i.toString()).child("time").setValue(eventArrayList.get(i).getTime());
                 }
             }
-        }catch(RuntimeException e){
+        }catch(Exception e){
             e.printStackTrace();
         }
 
         // if coming from create event, this code creates an event
         try{
-            Intent incoming = getIntent();
-            fromEventCreate = incoming.getExtras().getBoolean("create");
+            fromEventCreate = incomingIntent.getExtras().getBoolean("create");
             if(fromEventCreate != null && fromEventCreate){
                 loadFile(file);
-                String name = incoming.getStringExtra("name");
-                String time = incoming.getStringExtra("time");
-                String strDate = incoming.getStringExtra("strDate");
+                String name = incomingIntent.getStringExtra("name");
+                String time = incomingIntent.getStringExtra("time");
+                String strDate = incomingIntent.getStringExtra("strDate");
 
                 Event event = new Event(name, time, strDate);
                 eventArrayList.add(event);
@@ -177,7 +185,7 @@ public class CalendarActivity extends AppCompatActivity {
                 }
             }
 
-        }catch(RuntimeException e){
+        }catch(Exception e){
             e.printStackTrace();
         }
         databaseRef.addValueEventListener(listen);
@@ -189,21 +197,19 @@ public class CalendarActivity extends AppCompatActivity {
         // changes the date the calender is on to the day it was on before the user clicked
         // create event or clicked on an event.
 
-
         try{
-            Intent intent = getIntent();
-            Boolean dateChange = intent.getExtras().getBoolean("dateChange");
-            String strDate = intent.getStringExtra("date");
-            try {
-                date = (sdf.parse(strDate));
-                millsDate = date.getTime();
+            Boolean dateChange = incomingIntent.getExtras().getBoolean("dateChange");
+            String strDate = incomingIntent.getStringExtra("strDate");
 
-            } catch (ParseException e) {
-                e.printStackTrace();
-                Toast.makeText(CalendarActivity.this, "Error going to day",
-                        Toast.LENGTH_LONG).show();
-            }
             if(dateChange != null && dateChange){
+                try {
+                    date = (sdf.parse(strDate));
+                    millsDate = date.getTime();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    Toast.makeText(CalendarActivity.this, "Error going to day",
+                            Toast.LENGTH_LONG).show();
+                }
                 setDate();
             }
         }catch(RuntimeException e){
