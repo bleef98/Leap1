@@ -76,8 +76,8 @@ public class CreateEventActivity  extends AppCompatActivity {
             }
         });
         /**
-         * If the user clicks cancel then the application goes back to CalendarActivity without
-         * passing any data.
+         * If the user clicks cancel then the application goes back to CalendarActivity
+         * passing the date that the user was last on.
          */
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override

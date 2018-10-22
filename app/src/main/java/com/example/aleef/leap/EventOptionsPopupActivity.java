@@ -9,6 +9,10 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+/**
+ * The small popup box that appears when the user clicks an event.
+ * Used for deleting events.
+ */
 public class EventOptionsPopupActivity extends AppCompatActivity {
     TextView tvEventName;
     Button btnDelete, btnClose;
@@ -19,12 +23,13 @@ public class EventOptionsPopupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // This stuff is what makes this activity a small box
+        // This is what makes this activity a small box
         try{
             getSupportActionBar().hide();
         }catch(NullPointerException e){
             e.printStackTrace();
         }
+        // setContentView must be after the try/catch block
         setContentView(R.layout.activity_event_options_popup);
 
         DisplayMetrics dm = new DisplayMetrics();

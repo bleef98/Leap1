@@ -57,7 +57,6 @@ public class CalendarActivity extends AppCompatActivity {
     ArrayList<Event> eventArrayList = new ArrayList<>();
     private ListView listView;
     private FirebaseAuth fbAuth;
-    SaveEvents sEvents;
     FirebaseDatabase db;
     DatabaseReference databaseRef;
     FirebaseUser user;
@@ -65,6 +64,13 @@ public class CalendarActivity extends AppCompatActivity {
     ValueEventListener listen;
     File file;
     Intent incomingIntent;
+
+    /**
+     * When the user goes to CreateEventActivity or EventOptionsPopupActivity the arraylist of
+     * Events is save using file io, and loaded again on return to this activity. Otherwise, Events
+     * are permanently stored using firebase and the events are loaded from firebase on launch and
+     * saved there when events are added and deleted.
+     */
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,6 +82,7 @@ public class CalendarActivity extends AppCompatActivity {
         fbAuth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
 
+        // gets the user id to use as firebase storage directory
         user = fbAuth.getInstance().getCurrentUser();
         uid = user.getUid();
 
@@ -93,6 +100,7 @@ public class CalendarActivity extends AppCompatActivity {
             file = new File(fileNameOld);
         }
 
+        // The listener that is triggered when data in firebase changes
         listen = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -121,7 +129,6 @@ public class CalendarActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-
         databaseRef.addValueEventListener(listen);
 
         logoutBtn.setOnClickListener(new View.OnClickListener() {
@@ -145,6 +152,8 @@ public class CalendarActivity extends AppCompatActivity {
             if(delete !=null && delete){
                 String incomingName = incomingIntent.getStringExtra("eventDelete");
                 loadFile(file);
+
+                // deletes all events with the same name as the event that was clicked
                 for(int i=0; i<eventArrayList.size(); i++){
                     if(eventArrayList.get(i).getName().equals(incomingName)){
                         eventArrayList.remove(i);
@@ -175,9 +184,8 @@ public class CalendarActivity extends AppCompatActivity {
                 Event event = new Event(name, time, strDate);
                 eventArrayList.add(event);
 
-                databaseRef.removeValue();
-
                 // saves the events to DB
+                databaseRef.removeValue();
                 for(Integer i=0; i< eventArrayList.size(); i++){
                     databaseRef.child(i.toString()).child("date").setValue(sdf.format(eventArrayList.get(i).getDate()));
                     databaseRef.child(i.toString()).child("name").setValue(eventArrayList.get(i).getName());
@@ -196,11 +204,9 @@ public class CalendarActivity extends AppCompatActivity {
 
         // changes the date the calender is on to the day it was on before the user clicked
         // create event or clicked on an event.
-
         try{
             Boolean dateChange = incomingIntent.getExtras().getBoolean("dateChange");
             String strDate = incomingIntent.getStringExtra("strDate");
-
             if(dateChange != null && dateChange){
                 try {
                     date = (sdf.parse(strDate));
